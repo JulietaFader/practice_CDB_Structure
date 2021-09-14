@@ -1,4 +1,4 @@
-package ds
+package kvs
 
 import (
 	"context"
@@ -10,14 +10,14 @@ import (
 )
 
 func (r *repository) GetUsers(ctx context.Context) ([]process.User, error) {
-	domUsers := &[]process.User{}
+	users := &[]process.User{}
 
-	err := r.repo.FindWhere(ctx, &ds.QueryConditions{}, domUsers)
+	err := r.dsRepo.FindWhere(ctx, &ds.QueryConditions{}, users)
 
 	if err != nil {
 		logger.Error(ctx, "ds_search_error", logger.Tag{"error": err})
 		return  nil, err
 	}
 
-	return *domUsers, nil
+	return *users, nil
 }

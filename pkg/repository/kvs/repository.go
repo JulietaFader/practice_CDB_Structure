@@ -10,10 +10,11 @@ import (
 )
 
 type KVSRepository interface {
+	GetUsers(ctx context.Context) ([]process.User, error)
 	GetByID(ctx context.Context, id string) (*process.User, error)
 	CreateUser(ctx context.Context, user *process.User) (string, error)
 	UpdateUser(ctx context.Context, id string, user *process.User) (*process.User, error)
-	DeleteUser(ctx context.Context, id string) (*string, error)
+	DeleteUser(ctx context.Context, id string) (string, error)
 	SearchByEmail(ctx context.Context, email string) (*process.User, error)
 }
 

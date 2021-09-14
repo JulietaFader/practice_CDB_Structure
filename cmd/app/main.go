@@ -12,12 +12,11 @@ import (
 func main() {
 	conf := config.Get()
 
-
 	//Mock que simula la db de kvs??
 	var lockerRepository process.Locker
 	lockerRepository = locker.NewMock(nil, 3000)
 
-	userRepo := kvs.NewRepository(conf.Service.Kvs)
+	userRepo := kvs.NewRepository(conf.Service.Kvs, conf.Service.Ds)
 
 	userCont := process.Container{
 		Storage: userRepo,

@@ -12,3 +12,12 @@ services:
     write_tries: 19
     delete_tries: 19
     default_ttl: 19
+  ds:
+    name: crudnew-test-ds
+    service: crudnew-test-ds
+    read_timeout_ms: 19
+    write_timeout_ms: 19
+    read_tries: 19
+    write_tries: 19
+    delete_tries: 19
+    default_ttl: 19

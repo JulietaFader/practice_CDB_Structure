@@ -6,21 +6,20 @@ import (
 	"fmt"
 )
 
-func (r *repository) DeleteUser(ctx context.Context, id string) (*string, error) {
+func (r *repository) DeleteUser(ctx context.Context, id string) (string, error) {
 	ok, _ := r.chekIfExist(ctx, id)
 
 	if !ok {
-		return nil, errors.New(fmt.Sprintf("Error: User not found, wrong Id %s", id))
+		return "", errors.New(fmt.Sprintf("Error: User not found, wrong Id %s", id))
 	}
 
 	err := r.kvsRepo.Delete(ctx, id)
 
 	if err != nil {
-		return nil, errors.New(fmt.Sprintf("Error: Trying to delete user"))
+		return "", errors.New(fmt.Sprintf("Error: Trying to delete user"))
 	}
 
-	msg := "Delete success!"
-	return &msg, nil
+	return "Delete success!", nil
 }
 
 /*
