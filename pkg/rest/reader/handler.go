@@ -5,130 +5,108 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/gorilla/mux"
+	"github.com/mercadolibre/fury_go-core/pkg/web"
 
 	"github.com/mercadolibre/crudnew/pkg/domain/process"
-
-	//"github.com/mercadolibre/fury_go-core/pkg/web"
+	"github.com/mercadolibre/crudnew/pkg/rest"
 )
 
 type handler struct {
 	serv process.Service
 }
 
-func NewHandler(serv1 process.Service) Handler {
-
+func NewHandler(serv1 process.Service) rest.Handler {
 	return &handler{serv: serv1}
 }
 
 type Handler interface {
-	GetUsers(w http.ResponseWriter, req *http.Request)
-	GetByID(w http.ResponseWriter, req *http.Request)
-	CreateUser(w http.ResponseWriter, req *http.Request)
-	UpdateUser(w http.ResponseWriter, req *http.Request)
-	DeleteUser(w http.ResponseWriter, req *http.Request)
+	GetUsers(w http.ResponseWriter, req *http.Request) error
+	GetByID(w http.ResponseWriter, req *http.Request) error
+	CreateUser(w http.ResponseWriter, req *http.Request) error
+	UpdateUser(w http.ResponseWriter, req *http.Request) error
+	DeleteUser(w http.ResponseWriter, req *http.Request) error
 }
 
-func (h *handler) GetUsers(w http.ResponseWriter, req *http.Request) {
-
-	w.Header().Set("Content-Type", "application/json")
-
+func (h *handler) GetUsers(w http.ResponseWriter, req *http.Request) error {
 	ctx := req.Context()
-
 	users, err := h.serv.GetUsers(ctx)
 
 	if err != nil {
-
-		w.WriteHeader(400)
-		fmt.Fprintf(w, err.Error())
-	} else {
-
-		json.NewEncoder(w).Encode(users)
-		w.WriteHeader(200)
+		_, _ = fmt.Fprintf(w, err.Error())
+		return err
 	}
 
+	return web.RespondJSON(w, users, http.StatusOK)
 }
-func (h *handler) GetByID(w http.ResponseWriter, req *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
 
+func (h *handler) GetByID(w http.ResponseWriter, req *http.Request) error {
 	ctx := req.Context()
-	id := mux.Vars(req)["id"]
+	id := web.Params(req)["id"]
+
 	user, err := h.serv.GetByID(ctx, id)
 
 	if err != nil {
-		w.WriteHeader(404)
-		fmt.Fprint(w, err.Error())
-
-	} else {
-		json.NewEncoder(w).Encode(user)
-		w.WriteHeader(200)
-
-	}
-}
-func (h *handler) CreateUser(w http.ResponseWriter, req *http.Request) {
-	w.Header().Set("Content-Type", "aplication/json")
-	ctx := req.Context()
-	var user process.User
-	err := json.NewDecoder(req.Body).Decode(&user)
-	if err != nil {
-		w.WriteHeader(400)
-		fmt.Fprintf(w, "Can not parser")
-	}
-	mnsj, err := h.serv.CreateUser(ctx, &user)
-
-	if err != nil {
-		w.WriteHeader(400)
-		fmt.Fprintf(w, err.Error())
-	} else {
-
-		w.WriteHeader(201)
-		fmt.Fprintf(w, mnsj)
-
-	}
-}
-func (h *handler) UpdateUser(w http.ResponseWriter, req *http.Request) {
-
-	w.Header().Set("Content-Type", "application/json")
-
-	ctx := req.Context()
-	var user process.User
-	id := mux.Vars(req)["id"]
-	err := json.NewDecoder(req.Body).Decode(&user)
-	if err != nil {
-		w.WriteHeader(400)
-		fmt.Fprintf(w, "Can not parser")
+		_, _ = fmt.Fprint(w, err.Error())
+		return err
 	}
 
-	response, err := h.serv.UpdateUser(ctx, id, &user)
-
-	if err != nil {
-
-		w.WriteHeader(404)
-		fmt.Fprintf(w, err.Error())
-
-	} else {
-		w.WriteHeader(200)
-		json.NewEncoder(w).Encode(response)
-	}
-
+	return web.RespondJSON(w, user, http.StatusOK)
 }
 
-func (h *handler) DeleteUser(w http.ResponseWriter, req *http.Request) {
-
-	w.Header().Set("Content-Type", "application/json")
-
+func (h *handler) CreateUser(w http.ResponseWriter, req *http.Request) error {
 	ctx := req.Context()
-	id := mux.Vars(req)["id"]
+
+	user := &process.User{}
+	err := json.NewDecoder(req.Body).Decode(user)
+
+	if err != nil {
+		_, _ = fmt.Fprintf(w, "Can not parser")
+		return err
+	}
+
+	msj, err := h.serv.CreateUser(ctx, user)
+
+	if err != nil {
+		_, _ = fmt.Fprintf(w, err.Error())
+		return err
+	}
+
+	_, _ = fmt.Fprintf(w, msj)
+	return web.RespondJSON(w, msj, http.StatusOK)
+}
+
+func (h *handler) UpdateUser(w http.ResponseWriter, req *http.Request) error {
+	ctx := req.Context()
+	_user:= &process.User{}
+	id := web.Params(req)["id"]
+
+	err := json.NewDecoder(req.Body).Decode(_user)
+	if err != nil {
+		_, _ = fmt.Fprintf(w, "Can not parser")
+		return err
+	}
+
+	user, err := h.serv.UpdateUser(ctx, id, _user)
+
+	if err != nil {
+		_, _ = fmt.Fprintf(w, err.Error())
+		return err
+	}
+
+	return web.RespondJSON(w, user, http.StatusOK)
+}
+
+func (h *handler) DeleteUser(w http.ResponseWriter, req *http.Request) error {
+	ctx := req.Context()
+	id := web.Params(req)["id"]
 
 	msj, err := h.serv.DeleteUser(ctx, id)
 
 	if err != nil {
-
-		w.WriteHeader(404)
-		fmt.Fprintf(w, err.Error())
-	} else {
-		w.WriteHeader(204)
-		fmt.Fprintf(w, msj)
+		_, _ = fmt.Fprintf(w, err.Error())
+		return err
 	}
 
+	_, _ = fmt.Fprintf(w, msj)
+	return web.RespondJSON(w, msj, http.StatusOK)
 }

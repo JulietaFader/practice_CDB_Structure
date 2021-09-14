@@ -1,24 +1,21 @@
 package reader
 
 import (
-	_ "github.com/gin-gonic/gin"
-	_ "github.com/mercadolibre/fury_go-platform/pkg/fury"
+	"github.com/mercadolibre/fury_asset-mgmt-core-cdb/pkg/rest"
+	"github.com/mercadolibre/fury_asset-mgmt-core-libs/pkg/transport/httpcore"
+	"github.com/mercadolibre/fury_go-platform/pkg/fury"
 )
 
+func (h *handler) RouteURLs(app *fury.Application) {
+	group := app.Router.Group("/api/crudnew/users")
 
-func(){
-
+	group.Get("/{id}", h.GetByID, httpcore.Middle(app))
+	group.Put("/{id}", h.UpdateUser, httpcore.Middle(app))
+	group.Delete("/{id}", h.DeleteUser, httpcore.Middle(app))
+	group.Get("/", h.GetUsers, httpcore.Middle(app))
+	group.Post("/", h.CreateUser, httpcore.Middle(app))
 }
 
-
-	/*//Main -> Domain -> Service -> Repo.
-	//endpoints
-	router.HandleFunc("/users", handler.GetUsers).Methods("GET")
-	router.HandleFunc("/user/{id}", handler.GetByID).Methods("GET")
-	router.HandleFunc("/user", handler.CreateUser).Methods("POST")
-	router.HandleFunc("/user/{id}", handler.UpdateUser).Methods("PUT")
-	router.HandleFunc("/user/{id}", handler.DeleteUser).Methods("DELETE")
-
-	log.Fatal(http.ListenAndServe(":9000", router))
-
+func (h *handler) API() *fury.Application {
+	return rest.API(h)
 }
