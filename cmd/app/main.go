@@ -1,27 +1,32 @@
 package main
 
+import (
+	"github.com/mercadolibre/crudnew/cmd/config"
+	"github.com/mercadolibre/crudnew/pkg/domain/process"
+	"github.com/mercadolibre/crudnew/pkg/repository/kvs"
+	"github.com/mercadolibre/crudnew/pkg/repository/locker"
+	"github.com/mercadolibre/crudnew/pkg/rest"
+	restKVS "github.com/mercadolibre/crudnew/pkg/rest/reader"
+)
+
+func main() {
+	conf := config.Get()
 
 
+	//Mock que simula la db de kvs??
+	var lockerRepository process.Locker
+	lockerRepository = locker.NewMock(nil, 3000)
 
-/*r := gin.Default()
-user := r.RouterGroup
+	userRepo := kvs.NewRepository(conf.Service.Kvs)
 
-log.Println("Server Started...")
+	userCont := process.Container{
+		Storage: userRepo,
+		Lock: lockerRepository,
+	}
+	userService := process.NewService(&userCont)
+	userHandler := restKVS.NewHandler(userService)
 
-r := mux.NewRouter()
-
-var arr []kvs.User
-
-repo := kvs.NewRepository(arr)
-
-//container := &domain.Container{InterfaceStorage: repo}
-service := *process.NewService{Storage: repo}
-//service := domain.NewService(storage)
-
-handler := reader.NewHandler(service)
-user := process.User{ID: "1", FirstName: "Julieta", LastName: "Perez", Status: "Active"}
+	if err := rest.API(userHandler).Run(); err != nil {
+		panic(err.Error())
+	}
 }
-
-if user.ID == "1" {
-	user = process.User{ID: "2", FirstName: "Pedro", LastName: "Julieta", Status: "Active"}
-}*/
